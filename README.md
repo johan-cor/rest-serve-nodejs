@@ -1,19 +1,22 @@
-# REST Server (NodeJS)
+# REST Server (NodeJS + MongoDB)
 
-Este proyecto es una base sólida para un **REST Server** construido con Node.js y Express. Implementa una arquitectura basada en clases, controladores y rutas separadas para mantener el código organizado y escalable.
+Este proyecto es un **REST Server** robusto construido con Node.js, Express y MongoDB (usando Mongoose). Implementa una arquitectura profesional basada en capas (Modelos, Rutas, Controladores) y cuenta con validaciones avanzadas, autenticación y manejo de base de datos.
 
 ## Características
 
-- Arquitectura limpia (Modelo Servidor, Rutas, Controladores).
-- Servidor REST con endpoints para CRUD básico (GET, POST, PUT, DELETE, PATCH).
-- Configuración de CORS habilitada.
-- Parseo automático del body (JSON).
-- Manejo de variables de entorno con [dotenv](https://www.npmjs.com/package/dotenv).
-- Contenido estático público habilitado.
+- **Arquitectura MVC**: Separación clara de responsabilidades.
+- **Base de Datos**: Integración con MongoDB mediante Mongoose.
+- **CRUD Completo**: API RESTful para gestión de usuarios.
+- **Validaciones**: Uso de `express-validator` y validaciones personalizadas contra DB (helpers).
+- **Soft Delete**: Eliminación lógica de registros (cambio de estado) para mantener integridad referencial.
+- **Paginación**: Endpoint GET optimizado con `Promise.all` para devolver total de registros y resultados paginados.
+- **Seguridad**: Hashing de contraseñas con `bcryptjs`.
+- **Configuración**: Variables de entorno con `dotenv`.
+- **CORS**: Configurado para acceso cruzado.
 
 ## Instalación
 
-1. Clona el repositorio o descarga el código.
+1. Clona el repositorio.
 2. Navega a la carpeta del proyecto.
 3. Instala las dependencias:
 
@@ -21,15 +24,15 @@ Este proyecto es una base sólida para un **REST Server** construido con Node.js
 npm install
 ```
 
-## Configuración
+## Configuración y Base de Datos
 
-Crea un archivo `.env` en la raíz del proyecto para configurar tus variables de entorno. Puedes usar el siguiente ejemplo:
+1. **MongoDB**: Necesitas tener una instancia de MongoDB corriendo (local o Atlas).
+2. **Variables de Entorno**: Renombra (o crea) el archivo `.env` basado en el siguiente ejemplo:
 
 ```env
 PORT=8080
+MONGODB_CNN=mongodb+srv://<usuario>:<password>@cluster.mongodb.net/cafe_db
 ```
-
-> **Nota:** El puerto por defecto si no se configura es el `3000`.
 
 ## Ejecución
 
@@ -45,23 +48,37 @@ npm start
 
 ## Endpoints
 
-La ruta base para los usuarios es `/api/usuarios`.
+La ruta base es `/api/usuarios`.
 
 | Método | Endpoint | Descripción |
 | ------ | -------- | ----------- |
-| GET    | `/api/usuarios` | Obtener usuarios (soporta query params como `?q=hola&nombre=pedro`). |
-| POST   | `/api/usuarios` | Crear un nuevo usuario (recibe JSON body). |
-| PUT    | `/api/usuarios/:id` | Actualizar un usuario por ID. |
-| DELETE | `/api/usuarios` | Borrar un usuario. |
-| PATCH  | `/api/usuarios` | Actualización parcial. |
+| **GET** | `/api/usuarios` | Obtener lista de usuarios paginada. Filtra solo activos (`estado: true`). <br>Params opcionales: `?limite=5&desde=0` |
+| **POST** | `/api/usuarios` | Crear usuario. Valida email único y rol existente en DB. |
+| **PUT** | `/api/usuarios/:id` | Actualizar usuario por ID. Excluye campos sensibles como password o google flag. |
+| **DELETE** | `/api/usuarios/:id` | **Eliminación lógica**. Marca el usuario como inactivo (`estado: false`) en lugar de borrarlo físicamente. |
+| **PATCH** | `/api/usuarios` | Endpoint de ejemplo para actualizaciones parciales. |
 
 ## Estructura del Proyecto
 
-- `app.js`: Punto de entrada que instancia la clase Server.
-- `models/server.js`: Clase principal que configura Express, middlewares y rutas.
-- `routes/`: Definición de las rutas de la API.
-- `controllers/`: Lógica de negocio (funciones) que responden a las rutas.
-- `public/`: Archivos estáticos servidos automáticamente.
+- `app.js`: Punto de entrada.
+- `models/server.js`: Configuración del servidor Express y conecciones.
+- `DB/`: Configuración de la conexión a MongoDB.
+- `models/`: Esquemas de Mongoose (Usuario, Role, etc.).
+- `routes/`: Definición de endpoints.
+- `controllers/`: Lógica de los endpoints.
+- `middleware/`: Middlewares personalizados (validación de campos, etc.).
+- `helpers/`: Validadores de base de datos y utilidades.
+- `public/`: Archivos estáticos.
+
+## Tecnologías
+
+- Node.js
+- Express
+- MongoDB / Mongoose
+- Bcryptjs
+- Express Validator
+- Dotenv
+- Cors
 
 ## Licencia
 
