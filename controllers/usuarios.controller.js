@@ -85,17 +85,23 @@ const usuariosPut = async (req, res = response) => {
 const usuariosDelete = async (req, res = response) => {
 
     const {id } = req.params;
+    const usuarioAutenticado = req.usuario;
+    
+    // este dato se genera en el middleware de la validacion del token
+    // const uid = req.uid;
 
     // Físicamente se elimina el registro
     // const usuario = await Usuario.findByIdAndDelete(id)
 
     const usuario = await Usuario.findByIdAndUpdate(id, { estado: false })
-
+    
 
     res.status(201).json({
         ok: true,
         mensaje: "DELETE API - controlador",
-        usuario
+        usuario,
+        // uid
+        usuarioAutenticado
     })
 }
 

@@ -1,18 +1,20 @@
 # REST Server (NodeJS + MongoDB)
 
-Este proyecto es un **REST Server** robusto construido con Node.js, Express y MongoDB (usando Mongoose). Implementa una arquitectura profesional basada en capas (Modelos, Rutas, Controladores) y cuenta con validaciones avanzadas, autenticación y manejo de base de datos.
+Este proyecto es un **REST Server** robusto construido con Node.js, Express y MongoDB (usando Mongoose). Implementa una arquitectura profesional basada en capas (Modelos, Rutas, Controladores) y cuenta con **autenticación JWT** y autorización por Roles.
 
 ## Características
 
 - **Arquitectura MVC**: Separación clara de responsabilidades.
 - **Base de Datos**: Integración con MongoDB mediante Mongoose.
 - **CRUD Completo**: API RESTful para gestión de usuarios.
+- **Seguridad y Autenticación**:
+    - Generación y validación de **JSON Web Tokens (JWT)**.
+    - Login de usuarios (Google Auth pendiente o nativo).
+    - Hashing de contraseñas con `bcryptjs`.
+- **RBAC (Role-Based Access Control)**: Middlewares para proteger rutas según el rol del usuario (`ADMIN_ROL`, `USER_ROL`, etc.).
 - **Validaciones**: Uso de `express-validator` y validaciones personalizadas contra DB (helpers).
-- **Soft Delete**: Eliminación lógica de registros (cambio de estado) para mantener integridad referencial.
-- **Paginación**: Endpoint GET optimizado con `Promise.all` para devolver total de registros y resultados paginados.
-- **Seguridad**: Hashing de contraseñas con `bcryptjs`.
+- **Soft Delete**: Eliminación lógica de registros (cambio de estado).
 - **Configuración**: Variables de entorno con `dotenv`.
-- **CORS**: Configurado para acceso cruzado.
 
 ## Instalación
 
@@ -26,12 +28,13 @@ npm install
 
 ## Configuración y Base de Datos
 
-1. **MongoDB**: Necesitas tener una instancia de MongoDB corriendo (local o Atlas).
-2. **Variables de Entorno**: Renombra (o crea) el archivo `.env` basado en el siguiente ejemplo:
+1. **MongoDB**: Necesitas tener una instancia de MongoDB.
+2. **Variables de Entorno**: Configura tu archivo `.env`:
 
 ```env
 PORT=8080
 MONGODB_CNN=mongodb+srv://<usuario>:<password>@cluster.mongodb.net/cafe_db
+SECRETORPRIVATEKEY=TuSecretKeySuperSeguraParaFirmarTokens
 ```
 
 ## Ejecución
@@ -48,37 +51,45 @@ npm start
 
 ## Endpoints
 
-La ruta base es `/api/usuarios`.
+### Usuarios (`/api/usuarios`)
+
+| Método | Endpoint | Descripción | Auth Requerido |
+| ------ | -------- | ----------- | -------------- |
+| **GET** | `/api/usuarios` | Obtener lista de usuarios paginada. | No |
+| **POST** | `/api/usuarios` | Crear usuario (Registro). | No |
+| **PUT** | `/api/usuarios/:id` | Actualizar usuario por ID. | No |
+| **DELETE** | `/api/usuarios/:id` | Eliminación lógica usuario. | **Sí (Token + Rol)** |
+| **PATCH** | `/api/usuarios` | Actualización parcial. | No |
+
+### Autenticación (`/api/auth`)
 
 | Método | Endpoint | Descripción |
 | ------ | -------- | ----------- |
-| **GET** | `/api/usuarios` | Obtener lista de usuarios paginada. Filtra solo activos (`estado: true`). <br>Params opcionales: `?limite=5&desde=0` |
-| **POST** | `/api/usuarios` | Crear usuario. Valida email único y rol existente en DB. |
-| **PUT** | `/api/usuarios/:id` | Actualizar usuario por ID. Excluye campos sensibles como password o google flag. |
-| **DELETE** | `/api/usuarios/:id` | **Eliminación lógica**. Marca el usuario como inactivo (`estado: false`) en lugar de borrarlo físicamente. |
-| **PATCH** | `/api/usuarios` | Endpoint de ejemplo para actualizaciones parciales. |
+| **POST** | `/api/auth/login` | Iniciar sesión. Retorna el usuario y un **JWT** válido. |
+
+## Middlewares Personalizados
+
+El proyecto utiliza middlewares modulares (ubicados en `middleware/`):
+- `validar-campos`: Recolecta errores de `express-validator`.
+- `validar-jwt`: Protege rutas verificando la firma del Token.
+- `validar-roles`: Verifica si el usuario tiene permisos de Administrador o roles específicos.
 
 ## Estructura del Proyecto
 
-- `app.js`: Punto de entrada.
-- `models/server.js`: Configuración del servidor Express y conecciones.
-- `DB/`: Configuración de la conexión a MongoDB.
-- `models/`: Esquemas de Mongoose (Usuario, Role, etc.).
-- `routes/`: Definición de endpoints.
-- `controllers/`: Lógica de los endpoints.
-- `middleware/`: Middlewares personalizados (validación de campos, etc.).
-- `helpers/`: Validadores de base de datos y utilidades.
+- `models/`: Esquemas de Mongoose (Usuario, Role, Server).
+- `routes/`: Rutas de Usuarios y Auth.
+- `controllers/`: Lógica de negocio.
+- `middleware/`: Middlewares de validación y seguridad.
+- `helpers/`: Validadores de base de datos.
 - `public/`: Archivos estáticos.
 
 ## Tecnologías
 
-- Node.js
-- Express
-- MongoDB / Mongoose
+- Node.js & Express
+- MongoDB & Mongoose
+- JSON Web Token (jsonwebtoken)
 - Bcryptjs
-- Express Validator
-- Dotenv
-- Cors
+- Google Auth Library (preparado)
 
 ## Licencia
 
