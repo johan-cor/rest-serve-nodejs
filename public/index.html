@@ -1,11 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+        href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
+
+    <title>Google Sign In</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 </head>
+
 <body>
-    <h1>SITIO DE PRUEBAS</h1>
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-white group/design-root overflow-x-hidden"
+        style='font-family: Manrope, "Noto Sans", sans-serif;'>
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-40 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 max-w-[960px] flex-1">
+                    <div class="@container">
+                        <div class="@[480px]:px-4 @[480px]:py-3">
+                            <div class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-white @[480px]:rounded-lg min-h-[218px]"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDZPIsJOzhbWvUfQ4PoOluijx9XIvExXbc-dX1wBDSh57XqQ7s_ct479uHFeMOVeDkOLyHmC9SNEYtSrGxa4PKofinxCuFFn9ypCuBgt8sS-FpE4htzguO84RU628CrxgmgIC1kfnspuscfiQKhVsws7ie7maIjNrdSU0wXmpQnFrfefb2_WXw-ikfunlalCAKgpJs5XfcA6atqGy0AJboyapibY5qgWn2brWylZY-wa8gVV6vIfpg59M4DoBgmipGEJhRqOoHJzLwD");'>
+                            </div>
+                        </div>
+                    </div>
+                    <h1
+                        class="text-[#121118] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-center pb-3 pt-5">
+                        Google Sign In</h1>
+
+
+                    <!-- g_id_onload contains Google Identity Services settings -->
+                    <div id="g_id_onload" data-auto_prompt="false" data-callback="handleCredentialResponse"
+                        data-client_id="446002439460-3pl6juvd2q3eleklrvc0trbn4c67ur7i.apps.googleusercontent.com">
+                    </div>
+
+                    <div class="flex px-4 py-3 justify-center">
+                        <!-- g_id_signin places the button on a page and supports customization -->
+                        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_blue"
+                            data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"
+                            data-width="400">
+                        </div>
+                    </div>
+
+                    <div class="flex px-4 py-3">
+                        <button id="logoutButton"
+                            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-[#f1f0f4] text-[#121118] text-sm font-bold leading-normal tracking-[0.015em]">
+                            <span class="truncate">Log Out</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async></script>
+
+    <script>
+        function decodeJWT(token) {
+
+            let base64Url = token.split(".")[1];
+            let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            let jsonPayload = decodeURIComponent(
+                atob(base64)
+                    .split("")
+                    .map(function (c) {
+                        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                    })
+                    .join("")
+            );
+            return JSON.parse(jsonPayload);
+        }
+
+        function handleCredentialResponse(response) {
+
+            const fetchResponse = fetch("http://localhost:8080/api/auth/google", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id_token: response.credential
+                })
+            })
+                .then(resp => resp.json())
+                .then(data => {
+                    localStorage.setItem("email", data.usuario.correo);
+                    console.log(data)
+                })
+                .catch(console.log)
+        }
+
+
+        const button = document.getElementById("logoutButton");
+        button.onclick = () => {
+            google.accounts.id.disableAutoSelect();
+            google.accounts.id.revoke(localStorage.getItem("email"), done => {
+                localStorage.removeItem("email");
+                location.reload();
+                console.log("logout");
+            });
+        };
+    </script>
 </body>
+
 </html>
