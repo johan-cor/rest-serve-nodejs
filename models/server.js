@@ -7,8 +7,13 @@ class Server {
     constructor() {
         this.app = express();
         this.port = process.env.PORT || 3000;
-        this.usuariosPath = "/api/usuarios"
-        this.authPath = "/api/auth"
+        this.path = {
+            auth: "/api/auth",
+            buscar: "/api/buscar",
+            categorias: "/api/categorias",
+            productos: "/api/productos",
+            usuarios: "/api/usuarios",
+        }
 
         // Conectar a la base de datos
         this.conectarDB();
@@ -20,11 +25,11 @@ class Server {
         this.routes();
     }
 
-    async conectarDB(){
+    async conectarDB() {
         await dbConnection();
     }
 
-    middleware(){
+    middleware() {
 
         //CORS
         this.app.use(cors())
@@ -39,8 +44,11 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.authPath,require("../routes/auth.route"))
-        this.app.use(this.usuariosPath,require("../routes/usuarios.route"))
+        this.app.use(this.path.auth, require("../routes/auth.route")),
+            this.app.use(this.path.buscar, require("../routes/buscar.route")),
+            this.app.use(this.path.categorias, require("../routes/categorias.route")),
+            this.app.use(this.path.productos, require("../routes/productos.route")),
+            this.app.use(this.path.usuarios, require("../routes/usuarios.route"))
     }
 
 

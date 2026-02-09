@@ -6,7 +6,8 @@ Este proyecto es un **REST Server** robusto construido con Node.js, Express y Mo
 
 - **Arquitectura MVC**: Separación clara de responsabilidades.
 - **Base de Datos**: Integración con MongoDB mediante Mongoose.
-- **CRUD Completo**: API RESTful para gestión de usuarios.
+- **CRUD Completo**: API RESTful para gestión de usuarios, **categorías y productos**.
+- **Búsquedas Flexibles**: Endpoint global de búsqueda que permite realizar consultas por ID de Mongo o términos (regex) en múltiples colecciones.
 - **Seguridad y Autenticación**:
   - Generación y validación de **JSON Web Tokens (JWT)**.
   - Login de usuarios (Google Auth y Nativo).
@@ -75,6 +76,32 @@ npm start
 | **POST** | `/api/auth/login` | Login normal. Retorna el usuario y un JWT. |
 | **POST** | `/api/auth/google` | Login con Google Identity Services. Verifica el token de Google y crea/login el usuario. |
 
+### Categorías (`/api/categorias`)
+
+| Método | Endpoint | Descripción | Auth Requerido |
+| ------ | -------- | ----------- | -------------- |
+| **GET** | `/api/categorias` | Obtener todas las categorías (paginado). | No |
+| **GET** | `/api/categorias/:id` | Obtener una categoría por ID. | No |
+| **POST** | `/api/categorias` | Crear una nueva categoría. | **Sí (Token)** |
+| **PUT** | `/api/categorias/:id` | Actualizar categoría. | **Sí (Token)** |
+| **DELETE** | `/api/categorias/:id` | Eliminar categoría (lógica o física). | **Sí (Token + Admin)** |
+
+### Productos (`/api/productos`)
+
+| Método | Endpoint | Descripción | Auth Requerido |
+| ------ | -------- | ----------- | -------------- |
+| **GET** | `/api/productos` | Obtener lista de productos (paginado). | No |
+| **GET** | `/api/productos/:id` | Obtener producto por ID. | No |
+| **POST** | `/api/productos` | Crear nuevo producto. | **Sí (Token)** |
+| **PUT** | `/api/productos/:id` | Actualizar producto. | **Sí (Token)** |
+| **DELETE** | `/api/productos/:id` | Eliminar producto. | **Sí (Token + Admin)** |
+
+### Búsquedas (`/api/buscar`)
+
+| Método | Endpoint | Descripción |
+| ------ | -------- | ----------- |
+| **GET** | `/api/buscar/:coleccion/:termino` | Busca en la colección especificada (`usuarios`, `categorias`, `productos`). El término puede ser un `ID` de Mongo o una cadena (búsqueda flexible/regex). <br>Ej: `/api/buscar/productos/cafe` |
+
 ## Frontend
 
 Este backend sirve una aplicación web básica en la ruta raíz `/` para probar la autenticación con Google.
@@ -91,11 +118,11 @@ El proyecto utiliza middlewares modulares (ubicados en `middleware/`):
 
 ## Estructura del Proyecto
 
-- `models/`: Esquemas de Mongoose (Usuario, Role, Server).
-- `routes/`: Rutas de Usuarios y Auth.
-- `controllers/`: Lógica de negocio (Login nativo y Google).
+- `models/`: Esquemas de Mongoose (Usuario, Categoria, Producto, Role, Server).
+- `routes/`: Rutas de la API (Usuarios, Auth, Categorias, Productos, Buscar).
+- `controllers/`: Lógica de negocio.
 - `middleware/`: Middlewares de validación y seguridad.
-- `helpers/`: Validadores de base de datos y Google Verify.
+- `helpers/`: Validadores de base de datos y utilidades.
 - `public/`: Archivos estáticos y Frontend de ejemplo.
 
 ## Tecnologías
