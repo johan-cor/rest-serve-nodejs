@@ -7,6 +7,8 @@ Este proyecto es un **REST Server** robusto construido con Node.js, Express y Mo
 - **Arquitectura MVC**: Separación clara de responsabilidades.
 - **Base de Datos**: Integración con MongoDB mediante Mongoose.
 - **CRUD Completo**: API RESTful para gestión de usuarios, **categorías y productos**.
+- **Carga de Archivos**: Soporte para subir imágenes y manipularlas.
+- **Cloudinary**: Integración para el almacenamiento y gestión de imágenes en la nube.
 - **Búsquedas Flexibles**: Endpoint global de búsqueda que permite realizar consultas por ID de Mongo o términos (regex) en múltiples colecciones.
 - **Seguridad y Autenticación**:
   - Generación y validación de **JSON Web Tokens (JWT)**.
@@ -39,9 +41,10 @@ MONGODB_CNN=mongodb+srv://<usuario>:<password>@cluster.mongodb.net/cafe_db
 SECRETORPRIVATEKEY=TuSecretKeySuperSeguraParaFirmarTokens
 GOOGLE_CLIENT_ID=Tu_Google_Client_ID.apps.googleusercontent.com
 GOOGLE_SECRET_ID=Tu_Google_Secret_ID
+CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
 ```
 
-> **Nota:** Para que funcione Google Sign-In, debes configurar un proyecto en Google Cloud Console.
+> **Nota:** Para que funcione Google Sign-In, debes configurar un proyecto en Google Cloud Console. Para la subida de imágenes, requieres una cuenta en Cloudinary.
 
 ## Ejecución
 
@@ -96,6 +99,14 @@ npm start
 | **PUT** | `/api/productos/:id` | Actualizar producto. | **Sí (Token)** |
 | **DELETE** | `/api/productos/:id` | Eliminar producto. | **Sí (Token + Admin)** |
 
+### Carga de Archivos (`/api/uploads`)
+
+| Método | Endpoint | Descripción | Auth Requerido |
+| ------ | -------- | ----------- | -------------- |
+| **POST** | `/api/uploads` | Subir un archivo nuevo. | No |
+| **PUT** | `/api/uploads/:coleccion/:id` | Actualizar la imagen de un usuario o producto (Cloudinary). | No |
+| **GET** | `/api/uploads/:coleccion/:id` | Obtener/Mostrar la imagen de un recurso. | No |
+
 ### Búsquedas (`/api/buscar`)
 
 | Método | Endpoint | Descripción |
@@ -119,7 +130,7 @@ El proyecto utiliza middlewares modulares (ubicados en `middleware/`):
 ## Estructura del Proyecto
 
 - `models/`: Esquemas de Mongoose (Usuario, Categoria, Producto, Role, Server).
-- `routes/`: Rutas de la API (Usuarios, Auth, Categorias, Productos, Buscar).
+- `routes/`: Rutas de la API (Usuarios, Auth, Categorias, Productos, Buscar, Uploads).
 - `controllers/`: Lógica de negocio.
 - `middleware/`: Middlewares de validación y seguridad.
 - `helpers/`: Validadores de base de datos y utilidades.
@@ -132,6 +143,8 @@ El proyecto utiliza middlewares modulares (ubicados en `middleware/`):
 - JSON Web Token (jsonwebtoken)
 - Bcryptjs
 - Google Auth Library
+- Cloudinary
+- Express Fileupload
 
 ## Licencia
 

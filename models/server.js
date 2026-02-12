@@ -1,5 +1,6 @@
 require('dotenv').config()
 const cors = require('cors')
+const fileUpload = require('express-fileupload');
 const express = require('express');
 const { dbConnection } = require('../DB/confg.db');
 
@@ -13,6 +14,7 @@ class Server {
             categorias: "/api/categorias",
             productos: "/api/productos",
             usuarios: "/api/usuarios",
+            uploads: "/api/uploads",
         }
 
         // Conectar a la base de datos
@@ -32,15 +34,23 @@ class Server {
     middleware() {
 
         //CORS
-        this.app.use(cors())
+        this.app.use(cors());
 
         // para leer el body en formato json
-        this.app.use(express.json())
+        this.app.use(express.json());
 
         //Lectura y parseo del body
         // this.app.use(express.json())
 
-        this.app.use(express.static("public"))
+        this.app.use(express.static("public"));
+
+        //file upload : para subir archivos
+        this.app.use(fileUpload({
+            useTempFiles: true,
+            tempFileDir: '/tmp/',
+            createParentPath: true
+        }));
+
     }
 
     routes() {
@@ -49,6 +59,7 @@ class Server {
             this.app.use(this.path.categorias, require("../routes/categorias.route")),
             this.app.use(this.path.productos, require("../routes/productos.route")),
             this.app.use(this.path.usuarios, require("../routes/usuarios.route"))
+        this.app.use(this.path.uploads, require("../routes/uploads.route"))
     }
 
 
